@@ -46,8 +46,8 @@ def get_live_features(ticker):
     data.index = pd.to_datetime(data.index)
     data["momentum_10min"] = data["Close"].pct_change(periods=10)
     data["price_change_5min"] = data["Close"].pct_change(periods=5)
-    data["rolling_volume"] = data["Volume"].rolling(window=5).mean()
-    data["rolling_volume_ratio"] = data["Volume"] / data["rolling_volume"]
+    data["rolling_volume"] = data["Volume"].rolling(window=5).mean().squeeze()
+    data["rolling_volume_ratio"] = data["Volume"] / data["rolling_volume"].squeeze()
 
     features = data[["momentum_10min", "price_change_5min", "rolling_volume", "rolling_volume_ratio"]]
     return features.dropna().iloc[[-1]]  # return as 2D DataFrame
