@@ -44,15 +44,13 @@ def get_live_features(ticker):
     if data.empty:
         raise ValueError("No intraday data available")
     data.index = pd.to_datetime(data.index)
-    volume_series = data["Volume"]
     data["momentum_10min"] = data["Close"].pct_change(periods=10)
     data["price_change_5min"] = data["Close"].pct_change(periods=5)
-    data["rolling_volume"] = volume_series.rolling(window=5).mean()
-    data["rolling_volume_ratio"] = volume_series / data["rolling_volume"]
-    features = data[["momentum_10min", "price_change_5min", "rolling_volume", "rolling_volume_ratio"]].dropna()
-    if features.empty:
-        raise ValueError("No valid features computed")
-    return features.iloc[-1:].copy()
+    data["rolling_volume"] = data["Volume"].rolling(window=5).mean()
+    data["rolling_volume_ratio"] = data["Volume"] / data["rolling_volume"]
+
+    features = data[["momentum_10min", "price_change_5min", "rolling_volume", "rolling_volume_ratio"]]
+    return features.dropna().iloc[[-1]]  # return as 2D DataFrame
 
 # Run evaluation
 if ticker_list:
@@ -65,6 +63,7 @@ if ticker_list:
                     raise ValueError("No intraday data available")
 
                 try:
+                    st.write("Model expects features:", model.booster_.feature_name())
                     pred = model.predict(X)
                     prob = pred[0] if hasattr(pred, '__getitem__') else float(pred)
                 except Exception as e:
