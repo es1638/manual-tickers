@@ -28,11 +28,12 @@ if uploaded_file:
     content = uploaded_file.read().decode("utf-8")
     ticker_list = [line.strip().upper() for line in content.splitlines() if line.strip()]
     st.success(f"Loaded {len(ticker_list)} tickers from file.")
-else:
-    pasted = st.text_area("Paste comma-separated tickers", "AAPL, MSFT, TSLA")
-    if pasted:
-        ticker_list = [t.strip().upper() for t in pasted.split(",") if t.strip()]
-        st.success(f"Loaded {len(ticker_list)} tickers from text.")
+
+pasted = st.text_area("Paste comma-separated tickers", "AAPL, MSFT, TSLA")
+if pasted:
+    pasted_tickers = [t.strip().upper() for t in pasted.split(",") if t.strip()]
+    ticker_list.extend([t for t in pasted_tickers if t not in ticker_list])
+    st.success(f"Loaded {len(pasted_tickers)} tickers from text.")
 
 # Buy threshold
 threshold = st.slider("Buy Signal Threshold", 0.90, 1.00, 0.98, step=0.01)
