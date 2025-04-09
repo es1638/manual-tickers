@@ -49,8 +49,10 @@ def get_live_features(ticker):
     data["price_change_5min"] = data["Close"].pct_change(periods=5)
     data["rolling_volume"] = volume_series.rolling(window=5).mean()
     data["rolling_volume_ratio"] = volume_series / data["rolling_volume"]
-    features = data[["momentum_10min", "price_change_5min", "rolling_volume", "rolling_volume_ratio"]]
-    return features.dropna().iloc[-1:]
+    features = data[["momentum_10min", "price_change_5min", "rolling_volume", "rolling_volume_ratio"]].dropna()
+    if features.empty:
+        raise ValueError("No valid features computed")
+    return features.iloc[-1:].copy()
 
 # Run evaluation
 if ticker_list:
